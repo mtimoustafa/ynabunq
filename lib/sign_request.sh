@@ -1,3 +1,5 @@
 set -euo pipefail
 
-echo -n $1 | openssl dgst -sha256 -sign ~/.ssh/ynabunq/ynabunq.pem | base64
+openssl dgst -sha256 data.txt > hash
+openssl rsautl -sign -inkey ~/.ssh/ynabunq/ynabunq.pem -keyform PEM -in hash > signature
+base64 signature

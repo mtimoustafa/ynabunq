@@ -1,7 +1,5 @@
 require('dotenv').config()
 
-const axios = require('axios').default
-
 interface BudgetDateFormatInput {
   format: string
 }
@@ -25,13 +23,15 @@ interface BudgetInput {
   currency_format: BudgetCurrencyFormatInput
 }
 
+const axios = require('axios').default.create({
+  baseURL: process.env.YNAB_API_PATH,
+  headers: {
+    'Authorization': `Bearer ${process.env.YNAB_API_TOKEN}`
+  }
+})
+
 const getBudgets = async function() {
-  const { data: response } = await axios.get('/v1/budgets', {
-    baseURL: process.env.YNAB_API_PATH,
-    headers: {
-      'Authorization': `Bearer ${process.env.YNAB_API_TOKEN}`
-    }
-  })
+  const { data: response } = await axios.get('/v1/budgets')
 
   const budgets: BudgetInput[] = response.data
   console.log(budgets)

@@ -7,7 +7,7 @@
   "author": "mtimoustafa",
   "license": "MIT",
   "scripts": {
-    "start": "yarn tsc && babel-node src/index.ts --extensions '.ts'"
+    "start": "tsc-watch --onSuccess \"yarn babel-node src/index.ts --extensions '.ts'\""
   },
   "dependencies": {
     "@babel/core": "^7.16.0",
@@ -20,6 +20,7 @@
     "typescript": "^4.4.4"
   },
   "devDependencies": {
-    "@types/node": "^16.11.6"
+    "@types/node": "^16.11.6",
+    "tsc-watch": "^4.5.0"
   }
 }
