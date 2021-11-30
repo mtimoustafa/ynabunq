@@ -5,8 +5,11 @@ const axios = require('axios').default.create({
   },
 })
 
-module.exports = {
-  getTransaction: async function() {
+module.exports = class BunqService {
+  constructor() {
+  }
+
+  async getTransaction() {
     try {
       const { data: { Response: response } } = await axios.get('/v1/user')
 
@@ -15,5 +18,5 @@ module.exports = {
     } catch (error) {
       console.log(error.response.status, error.response.data)
     }
-  },
+  }
 }

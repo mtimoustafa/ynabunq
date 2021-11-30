@@ -5,8 +5,11 @@ const axios = require('axios').default.create({
   },
 })
 
-module.exports = {
-  getTransaction: async function() {
+module.exports = class YnabService {
+  constructor() {
+  }
+
+  async getTransaction() {
     try {
       const { data: { data: response } } = await axios.get('/v1/budgets')
 
@@ -15,5 +18,5 @@ module.exports = {
     } catch (error) {
       console.log(error.response.status, error.response.data)
     }
-  },
+  }
 }
