@@ -6,8 +6,9 @@
   "repository": "https://github.com/mtimoustafa/ynabunq",
   "author": "mtimoustafa",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "start": "tsc-watch --onSuccess \"yarn babel-node src/index.ts --extensions '.ts'\""
+    "start": "yarn babel-node src/index.ts --extensions '.ts'"
   },
   "dependencies": {
     "@babel/core": "^7.16.0",

@@ -37,4 +37,6 @@ const getBudgets = async function() {
   console.log(budgets)
 }
 
-getBudgets()
+// getBudgets()
+import BunqService from 'services/bunqService.js'
+BunqService.getTransaction()
