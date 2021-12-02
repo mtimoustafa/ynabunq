@@ -1,22 +1,48 @@
-const axios = require('axios').default.create({
-  baseURL: process.env.YNAB_API_PATH,
-  headers: {
-    'Authorization': `Bearer ${process.env.YNAB_API_TOKEN}`,
-  },
-})
-
 module.exports = class YnabService {
-  constructor() {
+  defaultBudget
+  #axiosHelper
+  #budgets
+  #transactions
+
+  constructor(options = {}) {
+    this.axiosHelper = new (require('../helpers/axiosHelper.js'))({
+      axiosOptions: {
+        baseURL: process.env.YNAB_API_PATH,
+        headers: {
+          'Authorization': `Bearer ${process.env.YNAB_API_TOKEN}`,
+        },
+      }
+    })
+
+    this.defaultBudget = options.defaultBudget
   }
 
-  async getTransaction() {
-    try {
-      const { data: { data: response } } = await axios.get('/v1/budgets')
+  async getBudgets() {
+    const { data: { data: { budgets: response } } } = await this.axiosHelper.get('/v1/budgets', {
+      params: {
+        include_accounts: 'true'
+      }
+    })
+    return this.budgets = response
+  }
 
-      const budgets = response
-      console.log(budgets)
-    } catch (error) {
-      console.log(error.response.status, error.response.data)
-    }
+  async getTransactions() {
+    const path = `/v1/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
+    const { data: { data: response } } = await this.axiosHelper.get(path)
+    return this.transactions = response
+  }
+
+  async postTransaction({ payeeName, amount, date }) {
+    if (!this.budgets) await this.getBudgets()
+
+    const path = `/v1/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
+    await this.axiosHelper.post(path, {
+      transaction: {
+        account_id: this.budgets[0].accounts[0].id,
+        payee_name: payeeName,
+        amount,
+        date
+      }
+    })
   }
 }
