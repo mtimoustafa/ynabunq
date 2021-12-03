@@ -5,7 +5,7 @@ module.exports = class BunqService {
   #user
 
   static TRANSACTION_TYPES = {
-    default: ['BUNQ', 'EBA_SCT', 'IDEAL'],
+    default: ['BUNQ', 'EBA_SCT', 'IDEAL', 'MASTERCARD'],
     detailed: [ 'INTEREST', 'SAVINGS' ]
   }
 
@@ -48,11 +48,14 @@ module.exports = class BunqService {
 
     const path = `/v1/user/${this.user.id}/monetary-account/${this.accounts[accountName].id}/payment`
     const { data: { Response: response } } = await this.axiosHelper.get(path)
-    return this.transactions = response.map(paymentWrapper => paymentWrapper.Payment)
+    return this.transactions = response
+      .map(paymentWrapper => paymentWrapper.Payment)
+      .sort((p1, p2) => Date.parse(p1.updated) <= Date.parse(p2.updated) ? 1 : -1)
   }
 
-  async getFilteredTransactions({ accountName, transactionTypes }) {
-    const transactions = await this.getTransactions({ accountName })
-    return transactions.filter(t => transactionTypes.includes(t.type))
+  async getFilteredTransactions({ accountName, transactionExclude = null }) {
+    let transactions = await this.getTransactions({ accountName })
+    if (transactionExclude) transactions = transactions.filter(t => !transactionExclude.includes(t.type))
+    return transactions
   }
 }
