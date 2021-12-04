@@ -32,17 +32,19 @@ module.exports = class YnabService {
     return this.transactions = response
   }
 
-  async postTransaction({ payeeName, amount, date }) {
+  async postTransactions(transactions) {
     if (!this.budgets) await this.getBudgets()
+
+    const transactionsWithAccountId = transactions.map(transaction => {
+      return {
+        account_id: this.budgets[0].accounts[0].id,
+        ...transaction
+      }
+    })
 
     const path = `/v1/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
     await this.axiosHelper.post(path, {
-      transaction: {
-        account_id: this.budgets[0].accounts[0].id,
-        payee_name: payeeName,
-        amount,
-        date
-      }
+      transactions: transactionsWithAccountId,
     })
   }
 }

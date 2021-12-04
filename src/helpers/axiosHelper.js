@@ -10,7 +10,12 @@ module.exports = class AxiosHelper {
       return await axiosCall()
     } catch (error) {
       if (!error.response) throw error
-      console.error(error.response.status, error.response.data)
+      console.error(
+        error.request.method,
+        error.request.path,
+        error.response.status,
+        JSON.stringify(error.response.data, null, 2)
+      )
     }
   }
 
