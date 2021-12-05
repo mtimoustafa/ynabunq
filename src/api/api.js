@@ -2,7 +2,7 @@ const app = require('express')()
 const syncController = require('../controllers/syncController.js')
 
 app.get('/', (request, response) => {
-  response.sendStatus(200).send('Hihi!')
+  response.status(200).send('Hihi!')
 })
 
 app.post('/sync', async (request, response) => {
