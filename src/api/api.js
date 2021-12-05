@@ -10,7 +10,8 @@ app.post('/sync', async (request, response) => {
     await syncController.syncTransactions()
     response.sendStatus(200)
   } catch (error) {
-    response.status(500).send(error)
+    console.error(error)
+    response.status(500)
   }
 })
 

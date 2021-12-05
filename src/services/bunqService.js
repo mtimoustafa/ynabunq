@@ -1,3 +1,5 @@
+const storeHelper = require('../helpers/storeHelper.js')
+
 module.exports = class BunqService {
   #axiosHelper
   #accounts
@@ -53,9 +55,14 @@ module.exports = class BunqService {
       .sort((p1, p2) => Date.parse(p1.updated) <= Date.parse(p2.updated) ? 1 : -1)
   }
 
-  async getFilteredTransactions({ accountName, transactionExclude = null }) {
+  async getFilteredTransactions({ accountName, transactionExclude = null, sinceDate = null }) {
     let transactions = await this.getTransactions({ accountName })
+
     if (transactionExclude) transactions = transactions.filter(t => !transactionExclude.includes(t.type))
+
+    sinceDate ||= storeHelper.getValue('lastSyncedTransactionDate')
+    if (sinceDate) transactions = transactions.filter(t => Date.parse(t.updated) > Date.parse(sinceDate))
+
     return transactions
   }
 }

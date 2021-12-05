@@ -1,4 +1,4 @@
-const fs = require('fs')
+const storeHelper = require('../helpers/storeHelper.js')
 
 const BunqService = require('../services/bunqService.js')
 const YnabService = require('../services/ynabService.js')
@@ -9,27 +9,17 @@ const ynabService = new YnabService()
 
 module.exports = {
   syncTransactions: async () => {
+    storeHelper.createStoreIfNotExists()
+
     const transactions = await bunqService.getFilteredTransactions({
       accountName: 'chequing',
       transactionExclude: BunqService.TRANSACTION_TYPES.detailed,
     })
 
-    await ynabService.postTransactions(transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
-
-    fs.access('db/state.json', fs.constants.F_OK, (error) => {
-      if (error) {
-        fs.mkdir('./db', error => {})
-        fs.writeFile('./db/state.json', '{}', error => {
-          if (error) console.error(error)
-        })
-      }
-    })
-
-    const state = JSON.parse(fs.readFileSync('./db/state.json'))
-    state.lastSyncedTransactionDate = transactions[0].updated
-
-    fs.writeFile('./db/state.json', JSON.stringify(state, null, 2), error => {
-      if (error) console.error(error)
-    })
+    console.log('Synced:', transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
+    if (transactions.length > 0) {
+      await ynabService.postTransactions(transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
+      storeHelper.setValue('lastSyncedTransactionDate', transactions[0].updated)
+    }
   }
 }
