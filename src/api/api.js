@@ -16,5 +16,5 @@ app.post('/sync', async (request, response) => {
 })
 
 app.listen(process.env.API_PORT, () => {
-  console.log(`Listening on http://localhost:${process.env.API_PORT}`)
+  console.info(`Listening on http://localhost:${process.env.API_PORT}`)
 })
