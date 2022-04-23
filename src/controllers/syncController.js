@@ -12,11 +12,12 @@ module.exports = {
     storeHelper.createStoreIfNotExists()
 
     const transactions = await bunqService.getFilteredTransactions({
-      accountName: 'chequing',
+      accountName: 'jointChequing',
       transactionExclude: BunqService.TRANSACTION_TYPES.detailed,
     })
 
-    console.log('Synced:', transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
+    console.log('Syncing:', transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
+
     if (transactions.length > 0) {
       await ynabService.postTransactions(transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
       storeHelper.setValue('lastSyncedTransactionDate', transactions[0].updated)

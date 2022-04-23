@@ -37,7 +37,7 @@ module.exports = class YnabService {
 
     const transactionsWithAccountId = transactions.map(transaction => {
       return {
-        account_id: this.budgets[0].accounts[0].id,
+        account_id: process.env.YNAB_ACCOUNT_ID,
         ...transaction
       }
     })

@@ -16,7 +16,7 @@ module.exports = class BunqService {
       axiosOptions: {
         baseURL: process.env.BUNQ_API_PATH,
         headers: {
-          'X-Bunq-Client-Authentication': process.env.BUNQ_API_TOKEN,
+          'X-Bunq-Client-Authentication': process.env.BUNQ_SESSION_TOKEN,
         },
       }
     })
@@ -48,8 +48,12 @@ module.exports = class BunqService {
     if (this.transactions) return this.transactions
     if (!this.accounts) await this.getAccounts()
 
-    const path = `/v1/user/${this.user.id}/monetary-account/${this.accounts[accountName].id}/payment`
-    const { data: { Response: response } } = await this.axiosHelper.get(path)
+    // const accountId = this.accounts[accountName].id // Joint Chequing account is duplicated, hard code for now
+    const accountId = process.env.BUNQ_ACCOUNT_ID
+
+    const path = `/v1/user/${this.user.id}/monetary-account/${accountId}/payment`
+    const { data: { Response: response } } = await this.axiosHelper.get(path, { params: { count: 200 } })
+
     return this.transactions = response
       .map(paymentWrapper => paymentWrapper.Payment)
       .sort((p1, p2) => Date.parse(p1.updated) <= Date.parse(p2.updated) ? 1 : -1)
