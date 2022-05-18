@@ -5,7 +5,7 @@ app.get('/', (request, response) => {
   response.status(200).send('Hihi!')
 })
 
-app.post('/sync', async (request, response) => {
+app.get('/sync', async (request, response) => {
   try {
     await syncController.syncTransactions()
     response.sendStatus(200)

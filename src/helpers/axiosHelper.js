@@ -9,6 +9,8 @@ module.exports = class AxiosHelper {
     try {
       return await axiosCall()
     } catch (error) {
+      if (process.env.NODE_ENV === 'production') throw error
+
       if (!error.response) throw error
       console.error(
         error.request.method,
