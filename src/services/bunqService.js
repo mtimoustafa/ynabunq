@@ -1,20 +1,38 @@
 const storeHelper = require('../helpers/storeHelper.js')
+const AxiosHelper = require('../helpers/axiosHelper.js')
 
 module.exports = class BunqService {
-  #axiosHelper
   #accounts
+  #axiosHelper
   #transactions
   #user
 
   constructor() {
-    this.axiosHelper = new (require('../helpers/axiosHelper.js'))({
+    this.getAuthToken().then((authToken) => {
+      this.axiosHelper = new AxiosHelper({
+        axiosOptions: {
+          baseURL: process.env.BUNQ_API_PATH,
+          headers: {
+            'X-Bunq-Client-Authentication': authToken,
+          },
+        }
+      })
+    })
+  }
+
+  async getAuthToken() {
+    const requestBody = { secret: process.env.BUNQ_API_TOKEN }
+    const axiosHelper = new AxiosHelper({
       axiosOptions: {
         baseURL: process.env.BUNQ_API_PATH,
         headers: {
-          'X-Bunq-Client-Authentication': process.env.BUNQ_SESSION_TOKEN,
+          'X-Bunq-Client-Authentication': process.env.BUNQ_INSTALLATION_TOKEN,
         },
       }
     })
+
+    const { data: { Response: response } } = await axiosHelper.post('/v1/session-server', requestBody)
+    return response[1].Token.token
   }
 
   async getUser() {
@@ -56,18 +74,16 @@ module.exports = class BunqService {
     this.transactions.forEach((transaction, index, transactions) => {
       transactions[index].amount.value = parseFloat(transaction.amount.value)
     })
-    return this.#consolidateSavingsEntries(this.transactions)
+    return this.transactions
   }
 
-  async getFilteredTransactions({ accountName, transactionExclude = null, sinceDate = null }) {
+  async getFilteredTransactions({ accountName }) {
     let transactions = await this.getTransactions({ accountName })
 
-    if (transactionExclude) transactions = transactions.filter(t => !transactionExclude.includes(t.type))
-
-    sinceDate = storeHelper.getValue('lastSyncedTransactionDate')
+    const sinceDate = storeHelper.getValue('lastSyncedTransactionDate')
     if (sinceDate) transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))
 
-    return transactions
+    return this.#consolidateSavingsEntries(transactions)
   }
 
   #consolidateSavingsEntries(transactions) {

@@ -23,7 +23,7 @@ module.exports = class AxiosHelper {
     return await this.call(() => this.axios.get(path, options))
   }
 
-  async post(path, options = {}) {
-    return await this.call(() => this.axios.post(path, options))
+  async post(path, body = {}) {
+    return await this.call(() => this.axios.post(path, body))
   }
 }
