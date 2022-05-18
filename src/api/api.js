@@ -15,7 +15,7 @@ app.post('/sync', async (request, response) => {
   }
 })
 
-app.listen(process.env.API_PORT, () => {
-  console.info(`Listening on http://localhost:${process.env.API_PORT}`)
+app.listen(process.env.PORT, () => {
+  console.info(`Listening on http://localhost:${process.env.PORT}`)
   if (process.env.NODE_ENV !== 'production') console.warn('Running in non-production mode!')
 })
