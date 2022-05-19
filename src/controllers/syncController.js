@@ -29,6 +29,7 @@ module.exports = {
       message = 'Budget already up-to-date.'
     }
 
+    console.log(message)
     return { status: 200, data: { message } }
   }
 }
