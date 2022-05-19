@@ -98,12 +98,16 @@ module.exports = class BunqService {
   }
 
   #consolidateSavingsEntries({ transactions }) {
+    if (transactions.length === 0) return transactions
+
     let newTransactions = []
 
     transactions.forEach((transaction, index) => {
       if (transaction.type === 'SAVINGS') {
         let mainTransaction = transactions[index + 1]
-        mainTransaction.amount.value += transaction.amount.value
+        if (mainTransaction) {
+          mainTransaction.amount.value += transaction.amount.value
+        }
       } else {
         newTransactions.push(transaction)
       }

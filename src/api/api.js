@@ -12,6 +12,7 @@ app.get('/sync', async (request, response) => {
     if (status === 200) response.status(status).send(data)
     else response.sendStatus(status)
   } catch (error) {
+    console.error(error)
     response.status(500).send({ error: 'Failed to sync data' })
   }
 })

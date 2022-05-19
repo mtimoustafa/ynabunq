@@ -19,8 +19,7 @@ module.exports = {
 
     if (process.env.NODE_ENV === 'development') return { status: 200, data: null }
 
-    const message = ''
-
+    let message = ''
     if (data.transactions.length > 0) {
       await ynabService.postTransactions(ynabTransactions)
       storeHelper.setValue('lastSyncedTransactionDate', data.transactions[0].created)
