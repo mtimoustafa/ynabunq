@@ -1,27 +1,42 @@
-const storeHelper = require('../helpers/storeHelper.js')
+const StoreHelper = require('../helpers/storeHelper.js')
 const AxiosHelper = require('../helpers/axiosHelper.js')
 
 module.exports = class BunqService {
-  #accounts
   #axiosHelper
-  #transactions
   #user
 
-  constructor() {
-    this.getAuthToken().then((authToken) => {
-      this.axiosHelper = new AxiosHelper({
-        axiosOptions: {
-          baseURL: process.env.BUNQ_API_PATH,
-          headers: {
-            'X-Bunq-Client-Authentication': authToken,
-          },
-        }
-      })
+  async fetchTransactions() {
+    let { status, data } = await this.#getAuthToken()
+    if (status !== 200) return { status, data }
+
+    this.axiosHelper = new AxiosHelper({
+      axiosOptions: {
+        baseURL: process.env.BUNQ_API_PATH,
+        headers: {
+          'X-Bunq-Client-Authentication': data.authToken,
+        },
+      }
     })
+
+    if (!this.user) {
+      ( { status, data } = await this.#getUser() )
+      if (status !== 200) return { status, data }
+
+      this.user = data.user
+    }
+
+    ( { status, data } = await this.#getTransactions({ userId: this.user.id }) )
+    if (status !== 200) return { status, data }
+
+    return {
+      status,
+      data: {
+        transactions: this.#formatTransactions({ transactions: data.transactions })
+      }
+    }
   }
 
-  async getAuthToken() {
-    const requestBody = { secret: process.env.BUNQ_API_TOKEN }
+  async #getAuthToken() {
     const axiosHelper = new AxiosHelper({
       axiosOptions: {
         baseURL: process.env.BUNQ_API_PATH,
@@ -31,62 +46,58 @@ module.exports = class BunqService {
       }
     })
 
-    const { data: { Response: response } } = await axiosHelper.post('/v1/session-server', requestBody)
-    return response[1].Token.token
-  }
+    let { status, data } = await axiosHelper.post(
+      '/v1/session-server',
+      { secret: process.env.BUNQ_API_TOKEN }
+    )
 
-  async getUser() {
-    if (this.user) return this.user
-
-    const { data: { Response: response } } = await this.axiosHelper.get('/v1/user')
-    return this.user = response[0].UserPerson
-  }
-
-  async getAccounts() {
-    if (this.accounts) return this.accounts
-    if (!this.user) await this.getUser()
-
-    const path = `/v1/user/${this.user.id}/monetary-account`
-    const { data: { Response: response } } = await this.axiosHelper.get(path)
-    const accounts = Object.assign({}, ...response)
-
-    return this.accounts = {
-      chequing: accounts.MonetaryAccountBank,
-      savings: accounts.MonetaryAccountSavings,
-      jointChequing: accounts.MonetaryAccountJoint,
+    if (status === 200) {
+      data = { authToken: data.Response[1].Token.token }
     }
+
+    return { status, data }
   }
 
-  async getTransactions({ accountName }) {
-    if (this.transactions) return this.transactions
-    if (!this.accounts) await this.getAccounts()
+  async #getUser() {
+    let { status, data } = await this.axiosHelper.get('/v1/user')
 
-    // const accountId = this.accounts[accountName].id // Joint Chequing account is duplicated, hard code for now
-    const accountId = process.env.BUNQ_ACCOUNT_ID
+    if (status === 200) {
+      data = { user: data.Response[0].UserPerson }
+    }
 
-    const path = `/v1/user/${this.user.id}/monetary-account/${accountId}/payment`
-    const { data: { Response: response } } = await this.axiosHelper.get(path, { params: { count: 200 } })
+    return { status, data }
+  }
 
-    this.transactions = response
+  async #getTransactions({ userId }) {
+    let { status, data } = await this.axiosHelper.get(
+      `/v1/user/${userId}/monetary-account/${process.env.BUNQ_ACCOUNT_ID}/payment`,
+      { params: { count: 200 } },
+    )
+
+    if (status !== 200) return { status, data }
+
+    let transactions = data.Response
       .map(paymentWrapper => paymentWrapper.Payment)
       .sort((p1, p2) => Date.parse(p1.created) <= Date.parse(p2.created) ? 1 : -1)
 
-    this.transactions.forEach((transaction, index, transactions) => {
+    transactions.forEach((transaction, index) => {
       transactions[index].amount.value = parseFloat(transaction.amount.value)
     })
-    return this.transactions
+
+    return { status, data: { transactions } }
   }
 
-  async getFilteredTransactions({ accountName }) {
-    let transactions = await this.getTransactions({ accountName })
+  #formatTransactions({ transactions }) {
+    const sinceDate = StoreHelper.getValue('lastSyncedTransactionDate')
 
-    const sinceDate = storeHelper.getValue('lastSyncedTransactionDate')
-    if (sinceDate) transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))
+    if (sinceDate) {
+      transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))
+    }
 
-    return this.#consolidateSavingsEntries(transactions)
+    return this.#consolidateSavingsEntries({ transactions })
   }
 
-  #consolidateSavingsEntries(transactions) {
+  #consolidateSavingsEntries({ transactions }) {
     let newTransactions = []
 
     transactions.forEach((transaction, index) => {

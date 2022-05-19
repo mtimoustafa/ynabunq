@@ -11,17 +11,25 @@ module.exports = {
   syncTransactions: async () => {
     storeHelper.createStoreIfNotExists()
 
-    const transactions = await bunqService.getFilteredTransactions({ accountName: 'jointChequing' })
+    const { status, data } = await bunqService.fetchTransactions()
+    if (status !== 200) return { status, data }
 
-    console.info('Syncing:', transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
+    const ynabTransactions = data.transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction))
+    console.info('Syncing:', ynabTransactions)
 
-    if (transactions.length > 0) {
-      await ynabService.postTransactions(transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction)))
-      storeHelper.setValue('lastSyncedTransactionDate', transactions[0].created)
+    if (process.env.NODE_ENV === 'development') return { status: 200, data: null }
 
-      console.info(`Sync completed. Last synced transaction date: ${storeHelper.getValue('lastSyncedTransactionDate')}`)
+    const message = ''
+
+    if (data.transactions.length > 0) {
+      await ynabService.postTransactions(ynabTransactions)
+      storeHelper.setValue('lastSyncedTransactionDate', data.transactions[0].created)
+
+      message = `Sync completed. Last synced transaction date: ${storeHelper.getValue('lastSyncedTransactionDate')}`
     } else {
-      console.info('Budget already up-to-date.')
+      message = 'Budget already up-to-date.'
     }
+
+    return { status: 200, data: { message } }
   }
 }

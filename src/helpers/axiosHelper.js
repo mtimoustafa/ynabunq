@@ -6,19 +6,34 @@ module.exports = class AxiosHelper {
   }
 
   async call(axiosCall) {
-    try {
-      return await axiosCall()
-    } catch (error) {
-      if (process.env.NODE_ENV === 'production') throw error
+    let response = { status: null, data: null }
 
-      if (!error.response) throw error
-      console.error(
-        error.request.method,
-        error.request.path,
-        error.response.status,
-        JSON.stringify(error.response.data, null, 2)
-      )
+    try {
+      const result = await axiosCall()
+
+      response.status = result.status
+      response.data = result.data
+    } catch (error) {
+      if (error.response) {
+        console.error(
+          error.request.method,
+          error.request.path,
+          error.response.status,
+          JSON.stringify(error.response.data, null, 2),
+        )
+
+        response.status = error.response.status
+        response.data = error.response.data
+      } else if (error.request) {
+        console.error(error.request)
+        response.status = 500
+      } else {
+        console.error(error.message)
+        response.status = 500
+      }
     }
+
+    return response
   }
 
   async get(path, options = {}) {
