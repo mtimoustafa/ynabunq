@@ -95,6 +95,7 @@ module.exports = class BunqService {
     // 2. Stored sync date that tracks last sync point
     // 3. Current date
     const sinceDate = syncDate?.toISOString() ?? await redisClient.get('syncDate') ?? (new Date(Date.now())).toISOString()
+    console.log(`Syncing from ${sinceDate}`)
 
     transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))
 
