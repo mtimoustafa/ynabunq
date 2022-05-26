@@ -10,6 +10,7 @@ module.exports = class RedisHelper {
       url: process.env.REDIS_TLS_URL,
       socket: {
         connectTimeout: 10 * 1000,
+        rejectUnauthorized: false,
       },
     })
 
