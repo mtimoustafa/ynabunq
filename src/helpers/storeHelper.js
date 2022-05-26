@@ -8,7 +8,7 @@ const store = JSON.parse(fs.readFileSync(storePath))
 const createStoreIfNotExists = () => {
   fs.access(storePath, fs.constants.F_OK, error => {
     if (error) {
-      fs.mkdir(storeDir, error => { console.log('test', error) })
+      fs.mkdir(storeDir, error => { console.error('test', error) })
 
       fs.writeFile(storePath, '{}', error => {
         if (error) console.error(error)
