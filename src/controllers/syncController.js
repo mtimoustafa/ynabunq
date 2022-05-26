@@ -1,5 +1,4 @@
-const storeHelper = require('../helpers/storeHelper.js')
-
+const { getRedisClient } = require('../helpers/redisHelper.js')
 const BunqService = require('../services/bunqService.js')
 const YnabService = require('../services/ynabService.js')
 const BunqYnabAdapter = require('../adapters/bunqYnabAdapter.js')
@@ -8,10 +7,8 @@ const bunqService = new BunqService()
 const ynabService = new YnabService()
 
 module.exports = {
-  syncTransactions: async () => {
-    storeHelper.createStoreIfNotExists()
-
-    const { status, data } = await bunqService.fetchTransactions()
+  syncTransactions: async ({ syncDate }) => {
+    const { status, data } = await bunqService.fetchTransactions({ syncDate })
     if (status !== 200) return { status, data }
 
     const ynabTransactions = data.transactions.map(transaction => BunqYnabAdapter.formatBunqTransactionToYnab(transaction))
@@ -22,9 +19,13 @@ module.exports = {
     let message = ''
     if (data.transactions.length > 0) {
       await ynabService.postTransactions(ynabTransactions)
-      storeHelper.setValue('lastSyncedTransactionDate', data.transactions[0].created)
 
-      message = `Sync completed. Last synced transaction date: ${storeHelper.getValue('lastSyncedTransactionDate')}`
+      const syncDate = data.transactions[0].created
+
+      const redisClient = await getRedisClient()
+      await redisClient.set('syncDate', syncDate)
+
+      message = `Sync completed. Last synced transaction date: ${syncDate}`
     } else {
       message = 'Budget already up-to-date.'
     }

@@ -1,11 +1,11 @@
-const StoreHelper = require('../helpers/storeHelper.js')
+const { getRedisClient } = require('../helpers/redisHelper.js')
 const AxiosHelper = require('../helpers/axiosHelper.js')
 
 module.exports = class BunqService {
   #axiosHelper
   #user
 
-  async fetchTransactions() {
+  async fetchTransactions({ syncDate }) {
     let { status, data } = await this.#getAuthToken()
     if (status !== 200) return { status, data }
 
@@ -31,7 +31,7 @@ module.exports = class BunqService {
     return {
       status,
       data: {
-        transactions: this.#formatTransactions({ transactions: data.transactions })
+        transactions: await this.#formatTransactions({ transactions: data.transactions, syncDate })
       }
     }
   }
@@ -87,12 +87,16 @@ module.exports = class BunqService {
     return { status, data: { transactions } }
   }
 
-  #formatTransactions({ transactions }) {
-    const sinceDate = StoreHelper.getValue('lastSyncedTransactionDate')
+  async #formatTransactions({ transactions, syncDate }) {
+    const redisClient = await getRedisClient()
 
-    if (sinceDate) {
-      transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))
-    }
+    // How far back do we sync?
+    // 1. Provided sync date param (YYYY-MM-DD)
+    // 2. Stored sync date that tracks last sync point
+    // 3. Current date
+    const sinceDate = syncDate?.toISOString() ?? await redisClient.get('syncDate') ?? (new Date(Date.now())).toISOString()
+
+    transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))
 
     return this.#consolidateSavingsEntries({ transactions })
   }

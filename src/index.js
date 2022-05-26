@@ -2,9 +2,7 @@ require('dotenv').config()
 
 const app = require('express')()
 const syncController = require('./controllers/syncController.js')
-const { createClient } = require('redis')
-
-let redisClient
+const { getRedisClient } = require('./helpers/redisHelper.js')
 
 app.get('/', (request, response) => {
   return response.status(200).send({ message: 'Its a me YNABunq!' })
@@ -12,7 +10,10 @@ app.get('/', (request, response) => {
 
 app.get('/sync', async (request, response) => {
   try {
-    const { status, data } = await syncController.syncTransactions()
+    const dateRegex = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+    const syncDate = dateRegex.test(request.query.sync_date) ? new Date(request.query.sync_date) : null
+
+    const { status, data } = await syncController.syncTransactions({ syncDate })
 
     if (status === 200) return response.status(status).send(data)
     else return response.sendStatus(status)
@@ -22,35 +23,7 @@ app.get('/sync', async (request, response) => {
   }
 })
 
-app.get('/redis', async (request, response) => {
-  try {
-    await redisClient.set('test', 'hi')
-    const value = await redisClient.get('test')
-    return response.status(200).send({ value })
-  } catch (error) {
-    console.error(error)
-    return response.sendStatus(500)
-  }
-})
-
-async function initRedis() {
-  redisClient = createClient({
-    socket: {
-      connectTimeout: 10 * 1000,
-      port: 6379,
-    },
-  })
-
-  redisClient.on('connect', () => console.info('[REDIS] Connecting...'))
-  redisClient.on('ready', () => console.info('[REDIS] Connected!'))
-  redisClient.on('error', err => console.error('[REDIS]', err.message))
-  redisClient.on('reconnecting', () => console.info('[REDIS] Reconnecting...'))
-  redisClient.on('end', () => console.info('[REDIS] Disconnected.'))
-
-  await redisClient.connect()
-}
-
-initRedis().then(() => {
+getRedisClient().then(() => {
   const server = app.listen(process.env.PORT, () => {
     console.info(`Listening on http://localhost:${process.env.PORT}`)
     if (process.env.NODE_ENV !== 'production') console.warn(`Running in ${process.env.NODE_ENV} mode!`)
