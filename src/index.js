@@ -23,7 +23,7 @@ app.get('/sync', async (request, response) => {
   }
 })
 
-getRedisClient().then(() => {
+getRedisClient().then(redisClient => {
   const server = app.listen(process.env.PORT, () => {
     console.info(`Listening on http://localhost:${process.env.PORT}`)
     if (process.env.NODE_ENV !== 'production') console.warn(`Running in ${process.env.NODE_ENV} mode!`)

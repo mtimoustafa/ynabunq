@@ -21,5 +21,6 @@ module.exports = class RedisHelper {
     RedisHelper.client.on('end', () => console.info('[REDIS] Disconnected.'))
 
     await RedisHelper.client.connect()
+    return RedisHelper.client
   }
 }
