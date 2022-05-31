@@ -1,8 +1,10 @@
-module.exports = class AxiosHelper {
+import Axios from 'axios'
+
+export default class AxiosHelper {
   #axios
 
   constructor({ axiosOptions }) {
-    this.axios = require('axios').default.create(axiosOptions)
+    this.axios = Axios.default.create(axiosOptions)
   }
 
   async call(axiosCall) {

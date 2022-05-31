@@ -1,6 +1,6 @@
-const { createClient } = require('redis')
+import { createClient } from 'redis'
 
-module.exports = class RedisHelper {
+export default class RedisHelper {
   static #client = null
 
   static async getRedisClient() {

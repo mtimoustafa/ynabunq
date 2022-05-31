@@ -1,8 +1,12 @@
-require('dotenv').config()
+import dotenv from 'dotenv'
+import express from 'express'
 
-const app = require('express')()
-const syncController = require('./controllers/syncController.js')
-const { getRedisClient } = require('./helpers/redisHelper.js')
+import { syncTransactions } from './controllers/syncController.js'
+import redisHelper from './helpers/redisHelper.js'
+
+dotenv.config()
+
+const app = express()
 
 app.get('/', (request, response) => {
   return response.status(200).send({ message: 'Its a me YNABunq!' })
@@ -13,7 +17,7 @@ app.get('/sync', async (request, response) => {
     const dateRegex = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
     const syncDate = dateRegex.test(request.query.sync_date) ? new Date(request.query.sync_date) : null
 
-    const { status, data } = await syncController.syncTransactions({ syncDate })
+    const { status, data } = await syncTransactions({ syncDate })
 
     if (status === 200) return response.status(status).send(data)
     else return response.sendStatus(status)
@@ -23,7 +27,7 @@ app.get('/sync', async (request, response) => {
   }
 })
 
-getRedisClient().then(redisClient => {
+redisHelper.getRedisClient().then(redisClient => {
   const server = app.listen(process.env.PORT, () => {
     console.info(`Listening on http://localhost:${process.env.PORT}`)
     if (process.env.NODE_ENV !== 'production') console.warn(`Running in ${process.env.NODE_ENV} mode!`)

@@ -1,11 +1,11 @@
-module.exports = class YnabService {
-  defaultBudget
+import AxiosHelper from '../helpers/axiosHelper.js'
+
+export default class YnabService {
   #axiosHelper
-  #budgets
   #transactions
 
   constructor(options = {}) {
-    this.axiosHelper = new (require('../helpers/axiosHelper.js'))({
+    this.axiosHelper = new AxiosHelper({
       axiosOptions: {
         baseURL: process.env.YNAB_API_PATH,
         headers: {
@@ -13,17 +13,6 @@ module.exports = class YnabService {
         },
       }
     })
-
-    this.defaultBudget = options.defaultBudget
-  }
-
-  async getBudgets() {
-    const { data: { data: { budgets: response } } } = await this.axiosHelper.get('/v1/budgets', {
-      params: {
-        include_accounts: 'true'
-      }
-    })
-    return this.budgets = response
   }
 
   async getTransactions() {
@@ -33,8 +22,6 @@ module.exports = class YnabService {
   }
 
   async postTransactions(transactions) {
-    if (!this.budgets) await this.getBudgets()
-
     const transactionsWithAccountId = transactions.map(transaction => {
       return {
         account_id: process.env.YNAB_ACCOUNT_ID,
@@ -43,6 +30,9 @@ module.exports = class YnabService {
     })
 
     const path = `/v1/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
+
+    if (process.env.NODE_ENV !== 'production') return // Dirty hack, I know
+
     await this.axiosHelper.post(path, {
       transactions: transactionsWithAccountId,
     })

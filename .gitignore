@@ -3,3 +3,4 @@ db/*
 .yarn/*
 .env
 dump.rdb
+yarn-error.log

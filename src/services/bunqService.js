@@ -1,7 +1,7 @@
-const { getRedisClient } = require('../helpers/redisHelper.js')
-const AxiosHelper = require('../helpers/axiosHelper.js')
+import redisHelper from '../helpers/redisHelper.js'
+import AxiosHelper from '../helpers/axiosHelper.js'
 
-module.exports = class BunqService {
+export default class BunqService {
   #axiosHelper
   #user
 
@@ -88,7 +88,7 @@ module.exports = class BunqService {
   }
 
   async #formatTransactions({ transactions, syncDate }) {
-    const redisClient = await getRedisClient()
+    const redisClient = await redisHelper.getRedisClient()
 
     // How far back do we sync?
     // 1. Provided sync date param (YYYY-MM-DD)
