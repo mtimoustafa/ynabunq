@@ -27,6 +27,6 @@ export async function syncTransactions({ syncDate }) {
     message = 'Budget already up-to-date.'
   }
 
-  console.log(message)
+  console.info(message)
   return { status: 200, data: { message } }
 }
