@@ -16,7 +16,7 @@ export async function syncTransactions({ syncDate }) {
   let message = ''
   if (data.transactions.length > 0) {
     ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
-    if (status !== 200) return { status, data }
+    if (status !== 201) return { status, data }
 
     const syncDate = data.transactions[0].created
 
