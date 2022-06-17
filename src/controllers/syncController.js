@@ -10,7 +10,8 @@ export async function syncTransactions({ syncDate }) {
   let { status, data } = await bunqService.fetchTransactions({ syncDate })
   if (status !== 200) return { status, data }
 
-  const ynabTransactions = data.transactions.map(transaction => formatBunqTransactionToYnab(transaction))
+  const bunqTransactions = data.transactions
+  const ynabTransactions = bunqTransactions.map(transaction => formatBunqTransactionToYnab(transaction))
   console.info('Syncing:', ynabTransactions)
 
   let message = ''
@@ -18,7 +19,7 @@ export async function syncTransactions({ syncDate }) {
     ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
     if (status !== 201) return { status, data }
 
-    const syncDate = data.transactions[0].created
+    const syncDate = bunqTransactions[0].created
 
     const redisClient = await redisHelper.getRedisClient()
     await redisClient.set('syncDate', syncDate)
