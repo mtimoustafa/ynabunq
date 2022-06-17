@@ -7,7 +7,7 @@ const bunqService = new BunqService()
 const ynabService = new YnabService()
 
 export async function syncTransactions({ syncDate }) {
-  const { status, data } = await bunqService.fetchTransactions({ syncDate })
+  let { status, data } = await bunqService.fetchTransactions({ syncDate })
   if (status !== 200) return { status, data }
 
   const ynabTransactions = data.transactions.map(transaction => formatBunqTransactionToYnab(transaction))
@@ -15,7 +15,8 @@ export async function syncTransactions({ syncDate }) {
 
   let message = ''
   if (data.transactions.length > 0) {
-    await ynabService.postTransactions(ynabTransactions)
+    ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
+    if (status !== 200) return { status, data }
 
     const syncDate = data.transactions[0].created
 

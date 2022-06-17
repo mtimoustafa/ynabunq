@@ -33,7 +33,7 @@ export default class YnabService {
 
     if (process.env.NODE_ENV !== 'production') return // Dirty hack, I know
 
-    await this.axiosHelper.post(path, {
+    return await this.axiosHelper.post(path, {
       transactions: transactionsWithAccountId,
     })
   }

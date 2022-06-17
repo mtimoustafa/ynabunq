@@ -27,11 +27,13 @@ export default class AxiosHelper {
         response.status = error.response.status
         response.data = error.response.data
       } else if (error.request) {
-        console.error(error.request)
+        console.error('Axios error in request:', error.request)
         response.status = 500
+        response.data = { error: 'Error in Axios request' }
       } else {
-        console.error(error.message)
+        console.error('Axios error:', error.message)
         response.status = 500
+        response.data = { error: 'Axios error' }
       }
     }
 
