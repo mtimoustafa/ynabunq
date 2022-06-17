@@ -14,7 +14,7 @@ const toYnabDate = date => {
 export function formatBunqTransactionToYnab(bunqTransaction) {
   return {
     payee_name: bunqTransaction.counterparty_alias.display_name,
-    amount: bunqTransaction.amount.value.toFixed(2) * 1000,
+    amount: Math.round(bunqTransaction.amount.value.toFixed(2) * 1000),
     date: toYnabDate(bunqTransaction.created),
     memo: bunqTransaction.description,
   }
