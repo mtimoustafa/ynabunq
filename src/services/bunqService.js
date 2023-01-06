@@ -1,4 +1,4 @@
-import redisHelper from '../helpers/redisHelper.js'
+import RedisHelper from '../helpers/redisHelper.js'
 import AxiosHelper from '../helpers/axiosHelper.js'
 
 export default class BunqService {
@@ -6,6 +6,7 @@ export default class BunqService {
   #user
 
   async fetchTransactions({ syncDate }) {
+    console.log('a')
     let { status, data } = await this.#getAuthToken()
     if (status !== 200) return { status, data }
 
@@ -18,6 +19,7 @@ export default class BunqService {
       }
     })
 
+    console.log('b')
     if (!this.user) {
       ( { status, data } = await this.#getUser() )
       if (status !== 200) return { status, data }
@@ -25,9 +27,11 @@ export default class BunqService {
       this.user = data.user
     }
 
+    console.log('c')
     ( { status, data } = await this.#getTransactions({ userId: this.user.id }) )
     if (status !== 200) return { status, data }
 
+    console.log('d')
     return {
       status,
       data: {
@@ -69,17 +73,21 @@ export default class BunqService {
   }
 
   async #getTransactions({ userId }) {
+    console.log('1', userId, process.env.BUNQ_ACCOUNT_ID)
     let { status, data } = await this.axiosHelper.get(
       `/v1/user/${userId}/monetary-account/${process.env.BUNQ_ACCOUNT_ID}/payment`,
       { params: { count: 200 } },
     )
 
+    console.log('2')
     if (status !== 200) return { status, data }
 
+    console.log('3')
     let transactions = data.Response
       .map(paymentWrapper => paymentWrapper.Payment)
       .sort((p1, p2) => Date.parse(p1.created) <= Date.parse(p2.created) ? 1 : -1)
 
+    console.log('4')
     transactions.forEach((transaction, index) => {
       transactions[index].amount.value = parseFloat(transaction.amount.value)
     })
@@ -88,7 +96,7 @@ export default class BunqService {
   }
 
   async #formatTransactions({ transactions, syncDate }) {
-    const redisClient = await redisHelper.getRedisClient()
+    const redisClient = await RedisHelper.getRedisClient()
 
     // How far back do we sync?
     // 1. Provided sync date param (YYYY-MM-DD)
