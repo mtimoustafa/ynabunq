@@ -1,14 +1,8 @@
+import { formattedLocalDate } from '../helpers/dateHelper.js'
+
 const toYnabDate = date => {
   const formattedDate = new Date(date.replace(' ', 'T') + 'Z') // Date string to ISO format
-
-  const dateString = new Intl.DateTimeFormat('nl', {
-    timeZone: 'Europe/Amsterdam',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(formattedDate)
-
-  return dateString.split('-').reverse().join('-') // Change DD-MM-YYYY to YYYY-MM-DD (yes I hate this too)
+  return formattedLocalDate(formattedDate)
 }
 
 export function formatBunqTransactionToYnab(bunqTransaction) {

@@ -7,7 +7,7 @@ export default class RedisHelper {
     if (RedisHelper.client) return RedisHelper.client
 
     RedisHelper.client = createClient({
-      url: process.env.REDIS_TLS_URL,
+      url: process.env.REDIS_URL,
       socket: {
         connectTimeout: 10 * 1000,
         rejectUnauthorized: false,
