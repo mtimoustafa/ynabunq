@@ -3,10 +3,10 @@ import BunqService from '../services/bunqService.js'
 import YnabService from '../services/ynabService.js'
 import { formatBunqTransactionToYnab } from '../adapters/bunqYnabAdapter.js'
 
-const bunqService = new BunqService()
-const ynabService = new YnabService()
-
 export async function syncTransactions({ syncDate }) {
+  const bunqService = new BunqService()
+  const ynabService = new YnabService()
+
   let { status, data } = await bunqService.fetchTransactions({ syncDate })
   if (status !== 200) return { status, data }
 

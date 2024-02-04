@@ -1,10 +1,14 @@
+import { v4 as uuidv4 } from 'uuid'
 import AxiosHelper from '../helpers/axiosHelper.js'
+import { formattedLocalDate } from '../helpers/dateHelper.js'
 
 export default class YnabService {
   #axiosHelper
-  #transactions
 
-  constructor(options = {}) {
+  constructor() {
+    console.log(process.env)
+    console.log(process.env.YNAB_API_PATH)
+    console.log(process.env.YNAB_API_TOKEN)
     this.axiosHelper = new AxiosHelper({
       axiosOptions: {
         baseURL: process.env.YNAB_API_PATH,
@@ -15,26 +19,41 @@ export default class YnabService {
     })
   }
 
+  // TODO: unusued. Would this be useful to keep?
   async getTransactions() {
     const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
     const { data: { data: response } } = await this.axiosHelper.get(path)
-    return this.transactions = response
+    return response
   }
 
   async postTransactions(transactions) {
     const transactionsWithAccountId = transactions.map(transaction => {
       return {
         account_id: process.env.YNAB_ACCOUNT_ID,
+        cleared: 'cleared',
+        import_id: this.generateImportId(),
         ...transaction
       }
     })
 
+    // If not in production, dry-run by default
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('[YNAB Updates - Dry Run]')
+      console.debug(transactionsWithAccountId)
+
+      return { status: 201, data: { } }
+    }
+
     const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
-
-    if (process.env.NODE_ENV !== 'production') return // Dirty hack, I know
-
     return await this.axiosHelper.post(path, {
       transactions: transactionsWithAccountId,
     })
+  }
+
+  generateImportId() {
+    const dateToday = formattedLocalDate(new Date())
+    const importId = `ynabunq_${dateToday}_${uuidv4()}`
+
+    return importId.substring(0, 36) // YNAB's import_id maximum length is 36 characters
   }
 }
