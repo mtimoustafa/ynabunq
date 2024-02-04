@@ -6,9 +6,6 @@ export default class YnabService {
   #axiosHelper
 
   constructor() {
-    console.log(process.env)
-    console.log(process.env.YNAB_API_PATH)
-    console.log(process.env.YNAB_API_TOKEN)
     this.axiosHelper = new AxiosHelper({
       axiosOptions: {
         baseURL: process.env.YNAB_API_PATH,
