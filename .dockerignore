@@ -1,0 +1,7 @@
+node_modules/*
+db/*
+.yarn/*
+.env
+!.env.example
+dump.rdb
+yarn-error.log
