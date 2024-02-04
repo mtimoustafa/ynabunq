@@ -47,7 +47,7 @@ export default class BunqService {
     })
 
     let { status, data } = await axiosHelper.post(
-      '/v1/session-server',
+      '/session-server',
       { secret: process.env.BUNQ_API_TOKEN }
     )
 
@@ -59,7 +59,7 @@ export default class BunqService {
   }
 
   async #getUser() {
-    let { status, data } = await this.axiosHelper.get('/v1/user')
+    let { status, data } = await this.axiosHelper.get('/user')
 
     if (status === 200) {
       data = { user: data.Response[0].UserPerson }
@@ -70,7 +70,7 @@ export default class BunqService {
 
   async #getTransactions({ userId }) {
     let { status, data } = await this.axiosHelper.get(
-      `/v1/user/${userId}/monetary-account/${process.env.BUNQ_ACCOUNT_ID}/payment`,
+      `/user/${userId}/monetary-account/${process.env.BUNQ_MONETARY_ACCOUNT_ID}/payment`,
       { params: { count: 200 } },
     )
 

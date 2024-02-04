@@ -16,7 +16,7 @@ export default class YnabService {
   }
 
   async getTransactions() {
-    const path = `/v1/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
+    const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
     const { data: { data: response } } = await this.axiosHelper.get(path)
     return this.transactions = response
   }
@@ -29,7 +29,7 @@ export default class YnabService {
       }
     })
 
-    const path = `/v1/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
+    const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
 
     if (process.env.NODE_ENV !== 'production') return // Dirty hack, I know
 
