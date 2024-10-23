@@ -9,8 +9,11 @@ dotenv.config()
 
 const app = express()
 
-app.get('/', (request, response) => {
-  return response.status(200).send({ message: 'Its a me YNABunq!', lastSyncDate: store.syncDate })
+app.get('/', async (request, response) => {
+  return response.status(200).send({
+    message: 'Its a me YNABunq!',
+    lastSyncDate: await store.get('syncDate')
+  })
 })
 
 // TODO: remove rest of Redis gear
@@ -26,16 +29,12 @@ app.get('/sync', async (request, response) => {
 
       const dateRegex = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
       syncDate = dateRegex.test(request.query.sync_date) ? new Date(request.query.sync_date) : null
-      // await store.set('syncDate', syncDate) // TODO: would not be needed if syncTransactions updates syncDate
     } else if (syncDate == null) {
       return response.status(400).send({
         error: 'Sync date not initialized. Please set a starting sync date to sync from (inclusive). Format: YYYY-MM-DD'
       })
     }
 
-    // return response.status(200).send({ syncDate }) // TODO: debug
-
-    // TODO: test that transactions sync correctly with new sync date
     const { status, data } = await syncTransactions({ syncDate })
 
     if (status === 200) return response.status(status).send(data)

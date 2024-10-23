@@ -1,4 +1,4 @@
-import redisHelper from '../helpers/redisHelper.js'
+import store from '../store/store.js'
 import BunqService from '../services/bunqService.js'
 import YnabService from '../services/ynabService.js'
 import { formatBunqTransactionToYnab } from '../adapters/bunqYnabAdapter.js'
@@ -19,12 +19,10 @@ export async function syncTransactions({ syncDate }) {
     ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
     if (status !== 201) return { status, data }
 
-    const syncDate = bunqTransactions[0].created
+    const newSyncDate = new Date(bunqTransactions[0].created)
+    await store.set('syncDate', newSyncDate.toISOString())
 
-    const redisClient = await redisHelper.getRedisClient()
-    await redisClient.set('syncDate', syncDate)
-
-    message = `Sync completed. Last synced transaction date: ${syncDate}`
+    message = `Sync completed. Last synced transaction date: ${newSyncDate}`
   } else {
     message = 'Budget already up-to-date.'
   }
