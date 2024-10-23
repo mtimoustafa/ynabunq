@@ -2,7 +2,6 @@ import dotenv from 'dotenv'
 import express from 'express'
 
 import { syncTransactions } from './controllers/syncController.js'
-import redisHelper from './helpers/redisHelper.js'
 import store from './store/store.js'
 
 dotenv.config()
@@ -16,8 +15,6 @@ app.get('/', async (request, response) => {
   })
 })
 
-// TODO: remove rest of Redis gear
-// TODO; get/set syncData from new store instead of Redis
 app.get('/sync', async (request, response) => {
   try {
     let syncDate = await store.get('syncDate')

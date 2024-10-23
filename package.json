@@ -9,8 +9,7 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development nodemon src/index.js",
-    "start": "NODE_ENV=production node src/index.js",
-    "redis": "redis-server"
+    "start": "NODE_ENV=production node src/index.js"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.0",
@@ -20,7 +19,6 @@
     "axios": "^0.24.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "redis": "^4.1.0",
     "uuid": "^9.0.1"
   }
 }
