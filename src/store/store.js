@@ -2,21 +2,9 @@ import { existsSync } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const STORE_PATH = resolve(import.meta.dirname, 'store.json') // TODO: try resolve('./store.json')
-
 export default class Store {
-  static async #createStore() {
-    // console.log('Creating store: ', STORE_PATH)
-    await writeFile(STORE_PATH, JSON.stringify({}))
-  }
-
-  static async #getStore() {
-    if (!existsSync(STORE_PATH)) { await this.#createStore() }
-
-    return JSON.parse(await readFile(STORE_PATH))
-  }
-
   static async get(property) {
+    console.log('hi')
     const store = await this.#getStore()
     return store[property]
   }
@@ -24,6 +12,22 @@ export default class Store {
   static async set(property, value) {
     let store = await this.#getStore()
     store[property] = value
-    await writeFile(STORE_PATH, JSON.stringify(store))
+    await writeFile(this.#storePath(), JSON.stringify(store))
+  }
+
+  static #storePath() {
+    // TODO: try resolve('./store.json')
+    return resolve(import.meta.dirname, 'store.json')
+  }
+
+  static async #createStore() {
+    // console.log('Creating store: ', this.#storePath)
+    await writeFile(this.#storePath(), JSON.stringify({}))
+  }
+
+  static async #getStore() {
+    if (!existsSync(this.#storePath())) { await this.#createStore() }
+
+    return JSON.parse(await readFile(this.#storePath()))
   }
 }

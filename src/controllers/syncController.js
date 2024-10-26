@@ -1,5 +1,5 @@
 import store from '../store/store.js'
-import BunqService from '../services/bunqService.js'
+import BunqService from '../services/bunqService.js' // TODO: use PascalCase for functions
 import YnabService from '../services/ynabService.js'
 import { formatBunqTransactionToYnab } from '../adapters/bunqYnabAdapter.js'
 
@@ -8,7 +8,7 @@ export async function syncTransactions({ syncDate }) {
   const ynabService = new YnabService()
 
   let { status, data } = await bunqService.fetchTransactions({ syncDate })
-  if (status !== 200) return { status, data }
+  if (status !== 200) return { status, data } // TODO; don't expose data - console.error it and return just status
 
   const bunqTransactions = data.transactions
   const ynabTransactions = bunqTransactions.map(transaction => formatBunqTransactionToYnab(transaction))
