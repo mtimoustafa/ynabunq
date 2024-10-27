@@ -10,11 +10,14 @@
   "scripts": {
     "dev": "NODE_ENV=development nodemon src/index.js",
     "start": "NODE_ENV=production node src/index.js",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:dev:unit": "vitest --exclude test/integrations.test.js",
+    "test:dev:integrations": "vitest test/integrations.test.js"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.0",
     "nodemon": "^2.0.15",
+    "supertest": "^7.0.0",
     "vitest": "^2.1.3"
   },
   "dependencies": {

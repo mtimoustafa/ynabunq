@@ -19,7 +19,9 @@ export async function syncTransactions({ syncDate }) {
     ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
     if (status !== 201) return { status, data }
 
-    const newSyncDate = new Date(bunqTransactions[0].created)
+    // TODO: validate this date
+    // TODO: this date is not stored as UTC, but the sync never gets up to date if it is
+    const newSyncDate = new Date(`${bunqTransactions[0].created}`)
     await store.set('syncDate', newSyncDate.toISOString())
 
     message = `Sync completed. Last synced transaction date: ${newSyncDate}`
