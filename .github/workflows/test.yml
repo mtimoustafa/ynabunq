@@ -15,6 +15,9 @@ jobs:
       BUNQ_INSTALLATION_TOKEN: ${{ secrets.BUNQ_INSTALLATION_TOKEN }}
       BUNQ_MONETARY_ACCOUNT_ID: ${{ secrets.BUNQ_MONETARY_ACCOUNT_ID }}
       YNAB_ACCOUNT_ID: ${{ secrets.YNAB_ACCOUNT_ID }}
+      YNAB_BUDGET_ID: ${{ secrets.YNAB_BUDGET_ID }}
+      YNAB_API_PATH: ${{ vars.YNAB_API_PATH }}
+      YNAB_API_TOKEN: ${{ secrets.YNAB_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,6 +37,9 @@ jobs:
       BUNQ_INSTALLATION_TOKEN: ${{ secrets.BUNQ_INSTALLATION_TOKEN }}
       BUNQ_MONETARY_ACCOUNT_ID: ${{ secrets.BUNQ_MONETARY_ACCOUNT_ID }}
       YNAB_ACCOUNT_ID: ${{ secrets.YNAB_ACCOUNT_ID }}
+      YNAB_BUDGET_ID: ${{ secrets.YNAB_BUDGET_ID }}
+      YNAB_API_PATH: ${{ vars.YNAB_API_PATH }}
+      YNAB_API_TOKEN: ${{ secrets.YNAB_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

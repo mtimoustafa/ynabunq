@@ -1,14 +1,11 @@
 import dotenv from 'dotenv'
 import request from 'supertest'
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest' // TODO: remove extraneous imports
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import router from '../src/router.js'
 import store from '../src/store/store.js'
 import AxiosHelper from '../src/helpers/axiosHelper.js'
 
 dotenv.config()
-
-// TODO: remove .only's
-// TODO: implement .todo tests
 
 vi.mock('../src/store/store.js', () => {
   const store = vi.fn()
