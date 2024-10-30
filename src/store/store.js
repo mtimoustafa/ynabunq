@@ -3,8 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 export default class Store {
-  // TODO: try resolve('./store.json')
-  static #storePath = resolve(import.meta.dirname, 'store.json')
+  static #storePath = resolve('./src/store/store.json')
 
   static async get(property) {
     const store = await this.#getStore()
