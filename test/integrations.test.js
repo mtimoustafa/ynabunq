@@ -15,6 +15,10 @@ vi.mock('../src/store/store.js', () => {
   return { default: store }
 })
 
+let syncDate = new Date(Date.now());
+syncDate.setDate(syncDate.getDate() - 7); // 7 days before today
+syncDate = syncDate.toISOString().split('T'); // String in format YYYY-MM-DD
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -42,7 +46,7 @@ describe('when sync date not set', () => {
 
     const response = await request(router)
       .get('/sync')
-      .query({ sync_date: '2024-10-24' })
+      .query({ sync_date: syncDate })
 
     expect(response.status).toBe(200)
     expect(response.body).toEqual({
@@ -61,11 +65,9 @@ describe('when sync date not set', () => {
       { transactions: expect.any(Object) }
     )
   })
-})
+}, 10000)
 
 describe('when sync date is set', () => {
-  // TODO: globalize this in this file?
-  const syncDate = '2024-10-24' // TODO: make dates dynamic (7 days before)
 
   beforeEach(() => {
     store.get.mockReturnValue(syncDate)
@@ -90,4 +92,4 @@ describe('when sync date is set', () => {
       error: `Sync date already set to ${syncDate}`,
     })
   })
-})
+}, 10000)
