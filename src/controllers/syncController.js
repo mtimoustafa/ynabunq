@@ -8,7 +8,10 @@ export async function syncTransactions({ syncDate }) {
   const ynabService = new YnabService()
 
   let { status, data } = await bunqService.fetchTransactions({ syncDate })
-  if (status !== 200) return { status, data } // TODO; don't expose data - console.error it and return just status
+  if (status !== 200) {
+    console.error('Bunq sync error:', data)
+    return { status, data: {} }
+  }
 
   const bunqTransactions = data.transactions
   const ynabTransactions = bunqTransactions.map(transaction => formatBunqTransactionToYnab(transaction))
@@ -17,7 +20,10 @@ export async function syncTransactions({ syncDate }) {
   let message = ''
   if (data.transactions.length > 0) {
     ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
-    if (status !== 201) return { status, data }
+    if (status !== 201) {
+      console.error('YNAB sync error:', data)
+      return { status, data: {} }
+    }
 
     // TODO: validate this date
     // TODO: this date is not stored as UTC, but the sync never gets up to date if it is

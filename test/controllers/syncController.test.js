@@ -168,11 +168,7 @@ describe('syncTransactions', () => {
 
       expect(response).toEqual({
         status: 500,
-        data: {
-          Error: [{
-            error_description: 'Server error',
-          }],
-        },
+        data: {},
       })
     })
 
@@ -202,11 +198,7 @@ describe('syncTransactions', () => {
 
       expect(response).toEqual({
         status: 500,
-        data: {
-          Error: [{
-            error_description: 'Server error',
-          }],
-        },
+        data: {},
       })
     })
 
