@@ -1,6 +1,6 @@
 {
   "name": "ynabunq",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A one-way transaction sync from Bunq to YNAB",
   "main": "src/index.js",
   "repository": "git@github.com:mtimoustafa/ynabunq.git",
@@ -10,17 +10,20 @@
   "scripts": {
     "dev": "NODE_ENV=development nodemon src/index.js",
     "start": "NODE_ENV=production node src/index.js",
-    "redis": "redis-server"
+    "test": "vitest --silent",
+    "test:unit": "vitest --silent --exclude test/integrations.test.js",
+    "test:integration": "vitest --silent test/integrations.test.js"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.0",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.3"
   },
   "dependencies": {
     "axios": "^0.24.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "redis": "^4.1.0",
     "uuid": "^9.0.1"
   }
 }

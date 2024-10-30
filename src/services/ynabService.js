@@ -33,13 +33,14 @@ export default class YnabService {
       }
     })
 
+    // TODO: decide if it's worth keeping this.
     // If not in production, dry-run by default
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug('[YNAB Updates - Dry Run]')
-      console.debug(transactionsWithAccountId)
+    // if (process.env.NODE_ENV !== 'production') {
+    //   console.debug('[YNAB Updates - Dry Run]')
+    //   console.debug(transactionsWithAccountId)
 
-      return { status: 201, data: { } }
-    }
+    //   return { status: 201, data: { } }
+    // }
 
     const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
     return await this.axiosHelper.post(path, {

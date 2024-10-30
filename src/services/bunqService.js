@@ -1,4 +1,4 @@
-import redisHelper from '../helpers/redisHelper.js'
+import store from '../store/store.js'
 import AxiosHelper from '../helpers/axiosHelper.js'
 
 export default class BunqService {
@@ -88,13 +88,7 @@ export default class BunqService {
   }
 
   async #formatTransactions({ transactions, syncDate }) {
-    const redisClient = await redisHelper.getRedisClient()
-
-    // How far back do we sync?
-    // 1. Provided sync date param (YYYY-MM-DD)
-    // 2. Stored sync date that tracks last sync point
-    // 3. Current date
-    const sinceDate = syncDate?.toISOString() ?? await redisClient.get('syncDate') ?? (new Date(Date.now())).toISOString()
+    const sinceDate = (new Date(syncDate))?.toISOString()
     console.info(`Syncing from ${sinceDate}`)
 
     transactions = transactions.filter(t => Date.parse(t.created) > Date.parse(sinceDate))

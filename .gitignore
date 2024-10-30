@@ -1,5 +1,5 @@
 node_modules/*
-db/*
+src/store/store.json
 .yarn/*
 .env
 !.env.example

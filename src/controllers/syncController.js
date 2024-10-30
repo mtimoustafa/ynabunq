@@ -1,5 +1,5 @@
-import redisHelper from '../helpers/redisHelper.js'
-import BunqService from '../services/bunqService.js'
+import store from '../store/store.js'
+import BunqService from '../services/bunqService.js' // TODO: use PascalCase for functions
 import YnabService from '../services/ynabService.js'
 import { formatBunqTransactionToYnab } from '../adapters/bunqYnabAdapter.js'
 
@@ -8,7 +8,10 @@ export async function syncTransactions({ syncDate }) {
   const ynabService = new YnabService()
 
   let { status, data } = await bunqService.fetchTransactions({ syncDate })
-  if (status !== 200) return { status, data }
+  if (status !== 200) {
+    console.error('Bunq sync error:', data)
+    return { status, data: {} }
+  }
 
   const bunqTransactions = data.transactions
   const ynabTransactions = bunqTransactions.map(transaction => formatBunqTransactionToYnab(transaction))
@@ -17,14 +20,17 @@ export async function syncTransactions({ syncDate }) {
   let message = ''
   if (data.transactions.length > 0) {
     ( { status, data } = await ynabService.postTransactions(ynabTransactions) )
-    if (status !== 201) return { status, data }
+    if (status !== 201) {
+      console.error('YNAB sync error:', data)
+      return { status, data: {} }
+    }
 
-    const syncDate = bunqTransactions[0].created
+    // TODO: validate this date
+    // TODO: this date is not stored as UTC, but the sync never gets up to date if it is
+    const newSyncDate = new Date(`${bunqTransactions[0].created}`)
+    await store.set('syncDate', newSyncDate.toISOString())
 
-    const redisClient = await redisHelper.getRedisClient()
-    await redisClient.set('syncDate', syncDate)
-
-    message = `Sync completed. Last synced transaction date: ${syncDate}`
+    message = `Sync completed. Last synced transaction date: ${newSyncDate}`
   } else {
     message = 'Budget already up-to-date.'
   }
