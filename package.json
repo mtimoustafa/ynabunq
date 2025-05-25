@@ -21,7 +21,7 @@
     "vitest": "^2.1.4"
   },
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.8.2",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "node-cron": "^4.0.7",
