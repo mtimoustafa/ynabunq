@@ -16,7 +16,6 @@ export default class YnabService {
     })
   }
 
-  // TODO: unusued. Would this be useful to keep?
   async getTransactions() {
     const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
     const { data: { data: response } } = await this.axiosHelper.get(path)
@@ -32,15 +31,6 @@ export default class YnabService {
         ...transaction
       }
     })
-
-    // TODO: decide if it's worth keeping this.
-    // If not in production, dry-run by default
-    // if (process.env.NODE_ENV !== 'production') {
-    //   console.debug('[YNAB Updates - Dry Run]')
-    //   console.debug(transactionsWithAccountId)
-
-    //   return { status: 201, data: { } }
-    // }
 
     const path = `/budgets/${process.env.YNAB_BUDGET_ID}/transactions`
     return await this.axiosHelper.post(path, {
