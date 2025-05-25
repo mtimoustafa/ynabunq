@@ -5,13 +5,6 @@ import YnabService from '../../src/services/ynabService.js'
 
 import { syncTransactions } from '../../src/controllers/syncController.js'
 
-vi.mock('../../src/store/store.js', () => {
-  const store = vi.fn()
-  store.set = vi.fn()
-
-  return { default: store }
-})
-
 vi.mock('../../src/services/bunqService.js', () => {
   const BunqService = vi.fn()
   BunqService.prototype.fetchTransactions = vi.fn(() => {

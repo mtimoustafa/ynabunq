@@ -10,7 +10,7 @@ function scheduleSyncTransactionsJob() {
 }
 
 async function runSyncTransactionsJob() {
-  console.log('Sync Job:', {
+  console.log('syncTransactionsJob:', {
     timestamp: new Date(Date.now()).toISOString(),
     status: 'started',
   })
@@ -20,7 +20,7 @@ async function runSyncTransactionsJob() {
 
   const { status, data } = await syncTransactions({ syncDate })
 
-  console.log('Sync Job:', {
+  console.log('syncTransactionsJob:', {
     timestamp: new Date(Date.now()).toISOString(),
     status: 'completed',
     httpStatus: status,
