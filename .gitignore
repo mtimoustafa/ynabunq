@@ -1,7 +1,14 @@
+# Local data store
+data/*
+
+# Framework temporary files
 node_modules/*
-src/store/store.json
 .yarn/*
+
+# Environment variables
 .env
 !.env.example
+
+# Local logs
 dump.rdb
 yarn-error.log
